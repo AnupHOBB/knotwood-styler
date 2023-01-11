@@ -1,6 +1,6 @@
 <html>
     <script>
-        const LAYERS = ['base', 'bath', 'floor', 'glass'] 
+        const LAYERS = ['floor', 'glass', 'bath', 'base'] 
         const LAYERS_IMAGE_DATA = new Map()
 
         let context
@@ -103,6 +103,8 @@
                         finalG = multiplyColor(finalG, g)
                     if (b > 0)
                         finalB = multiplyColor(finalB, b)
+                    if (a == 255)
+                        break;
                 }
                 finalImage[i] = finalR
                 finalImage[i + 1] = finalG
