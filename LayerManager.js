@@ -72,22 +72,20 @@ class LayerManagerCore
         let finalImage = new Uint8ClampedArray(imageSize)
         for (let i=0; i<imageSize; i+=4)
         {
-            let finalR = 255
-            let finalG = 255
-            let finalB = 255
-            for (let j=0; j<this.layersDataMap.size; j++)
+            let firstA = firstImageData.data[i+3]
+            let finalR = this.multiplyColor(firstImageData.data[i], firstA)
+            let finalG = this.multiplyColor(firstImageData.data[i + 1], firstA)
+            let finalB = this.multiplyColor(firstImageData.data[i + 2], firstA) 
+            for (let j=1; j<this.layersDataMap.size; j++)
             {
                 let imageData = this.layersDataMap.get(this.layerNames[j])
                 let a = imageData.data[i + 3]
                 let r = this.multiplyColor(imageData.data[i], a)
                 let g = this.multiplyColor(imageData.data[i + 1], a)
                 let b = this.multiplyColor(imageData.data[i + 2], a)  
-                if (r > 0)
-                    finalR = this.multiplyColor(finalR, r)
-                if (g > 0) 
-                    finalG = this.multiplyColor(finalG, g)
-                if (b > 0)
-                    finalB = this.multiplyColor(finalB, b)
+                finalR = this.addColor(finalR, r)
+                finalG = this.addColor(finalG, g)
+                finalB = this.addColor(finalB, b) 
                 if (a == 255)
                     break;
             }
@@ -108,6 +106,16 @@ class LayerManagerCore
     {
         let match = str.match(/rgba?\((\d{1,3}), ?(\d{1,3}), ?(\d{1,3})\)?(?:, ?(\d(?:\.\d?))\))?/)
         return match ? {r:match[1], g:match[2], b:match[3]} : {r:0, g:0, b:0}
+    }
+
+    addColor(c1, c2)
+    {   
+        c1 /= 255
+        c2 /= 255
+        let c3 = c1 + c2
+        if (c3 > 1)
+            c3 = 1
+        return c3 * 255
     }
 
     multiplyColor(c1, c2)

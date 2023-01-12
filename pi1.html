@@ -13,7 +13,8 @@
                 let listItem = document.getElementById('list-item'+i)
                 listItem.onclick = (e)=>layerManager.modifyLayer(LAYERS[i-1], listItem.style.backgroundColor)
             }
-            const folder = 'assets/pi/'
+            const subfolder = (isPhone())?'mobile/':'pc/'
+            const folder = 'assets/pi/'+subfolder
             const extension = '.png'
             for (let i=0; i<LAYERS.length; i++)
                 requestServer(folder+LAYERS[i]+extension, i)
@@ -58,6 +59,12 @@
             canvas.height = img.height
             ctxt.drawImage(img, 0, 0)
             return ctxt.getImageData(0, 0, img.width, img.height)
+        }
+
+        function isPhone()
+        {
+            const devices = [/Android/i,/webOS/i,/iPhone/i,/iPad/i,/iPod/i,/BlackBerry/i,/Windows Phone/i]
+            return devices.some((device) => { return navigator.userAgent.match(device) })
         }
     </script>
     <style>
