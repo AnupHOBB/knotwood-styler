@@ -76,18 +76,21 @@ class LayerManagerCore
             let finalR = this.multiplyColor(firstImageData.data[i], firstA)
             let finalG = this.multiplyColor(firstImageData.data[i + 1], firstA)
             let finalB = this.multiplyColor(firstImageData.data[i + 2], firstA) 
-            for (let j=1; j<this.layersDataMap.size; j++)
+            if (firstA < 255)
             {
-                let imageData = this.layersDataMap.get(this.layerNames[j])
-                let a = imageData.data[i + 3]
-                let r = this.multiplyColor(imageData.data[i], a)
-                let g = this.multiplyColor(imageData.data[i + 1], a)
-                let b = this.multiplyColor(imageData.data[i + 2], a)  
-                finalR = this.addColor(finalR, r)
-                finalG = this.addColor(finalG, g)
-                finalB = this.addColor(finalB, b) 
-                if (a == 255)
-                    break;
+                for (let j=1; j<this.layersDataMap.size; j++)
+                {
+                    let imageData = this.layersDataMap.get(this.layerNames[j])
+                    let a = imageData.data[i + 3]
+                    let r = this.multiplyColor(imageData.data[i], a)
+                    let g = this.multiplyColor(imageData.data[i + 1], a)
+                    let b = this.multiplyColor(imageData.data[i + 2], a)  
+                    finalR = this.addColor(finalR, r)
+                    finalG = this.addColor(finalG, g)
+                    finalB = this.addColor(finalB, b) 
+                    if (a == 255)
+                        break;
+                }
             }
             finalImage[i] = finalR
             finalImage[i + 1] = finalG
