@@ -50,7 +50,10 @@
                     layerManager.addLayerAt(LAYER_SETS[j], LAYERS[i], imageDatas[0])
                 }
             }
-            layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+            if (isPhone())
+                layerManager.drawLayerSet(LAYER_SETS[0], canvas)
+            else
+                layerManager.drawLayerSet(LAYER_SETS[1], canvas)
         }
 
         function isNarrowScreen()
