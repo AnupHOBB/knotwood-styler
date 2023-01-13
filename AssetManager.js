@@ -1,5 +1,11 @@
-import {AssetDownloader} from './DownloadManager.js'
-
+import {AssetDownloader} from './AssetDownloader.js'
+/**
+ * This class downloads all the images and stores them as image data within the assetMap variable.
+ * The assetMap consists of entries where : (key : layer name i.e. glass/bath/floor/base) and (value : setMap).
+ * The setMap consists of entries where : (key : set name i.e mobile/pc) and (value: array of imagedata of a particular layer).
+ * The variable layerSetNames refers to the name for various screen sizes i.e. mobile, pc, etc.
+ * The variable layerNames refers to the name for various images i.e. base, floor, glass, bath etc. This is just an array of the names of image layers.
+ */
 export class AssetManager
 {
     constructor(layerSetNames, layerNames)

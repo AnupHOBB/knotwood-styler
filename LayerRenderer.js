@@ -1,5 +1,10 @@
 import { toRGB, addColor, multiplyColor, duplicateImagedata } from './Helpers.js'
-
+/**
+ * This class mixes all the layers to produce the final image.
+ * As this class does off-screen mixing, in order to display the final image renderToCanvas must be called.
+ * The imagedata needs to be added and the the number of imagedata must be the same as the length of layerNames array 
+ * or else the class will not render the final image.
+ */
 export class LayerRenderer
 {
     constructor(layerNames)

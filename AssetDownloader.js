@@ -2,19 +2,6 @@ import { toImageDataFromImage } from './Helpers.js'
 
 export class AssetDownloader
 {
-    constructor()
-    {
-        this.core = new AssetDownloaderCore()
-    }
-
-    downloadAssets(path, onDownload)
-    {
-        this.core.downloadAssets(path, onDownload)
-    }
-}
-
-class AssetDownloaderCore
-{
     downloadAssets(path, onDownload)
     {
         let reader = new XMLHttpRequest()
