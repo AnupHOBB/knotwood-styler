@@ -1,64 +1,62 @@
 <html>
-    <script type="module" src="./LayerManager.js"></script>
     <script type="module">
         import {LayerManager} from "./LayerManager.js"
+        import {AssetManager} from "./AssetManager.js"
+        import {toImageDataFromImage} from "./Helpers.js"
         const LAYERS = ['glass', 'floor', 'bath', 'base'] 
+        const LAYER_SETS = ['mobile', 'pc']
+
+        let canvas
         let layerManager
 
-        window.onload = ()=>
+        window.onload = () =>
         {
-            layerManager = new LayerManager(document.getElementById("canvas"), LAYERS)
+            canvas = document.getElementById("canvas")
+ 
             for (let i=1; i<=LAYERS.length; i++)
             {
                 let listItem = document.getElementById('list-item'+i)
-                listItem.onclick = (e)=>layerManager.modifyLayer(LAYERS[i-1], listItem.style.backgroundColor)
+                listItem.onclick = (e)=>
+                {
+                    layerManager.modifyAllLayerSets(LAYERS[i-1], listItem.style.backgroundColor)
+                    if (isPhone())
+                        layerManager.drawLayerSet(LAYER_SETS[0], canvas)
+                    else
+                        layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+                }
             }
-            const subfolder = (isPhone())?'mobile/':'pc/'
-            const folder = 'assets/pi/'+subfolder
-            const extension = '.png'
+                
+            let assetManager = new AssetManager(LAYER_SETS, LAYERS)
+            assetManager.loadAssets(onAssetDownload)
+            layerManager = new LayerManager(LAYER_SETS, LAYERS)
+        }
+
+        window.onresize = () =>
+        {
+            if (isPhone())
+                layerManager.drawLayerSet(LAYER_SETS[0], canvas)
+            else
+                layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+        }
+
+        function onAssetDownload(assetMap)
+        {
             for (let i=0; i<LAYERS.length; i++)
-                requestServer(folder+LAYERS[i]+extension, i)
-        }
-
-        function requestServer(path, index)
-        {
-            let reader = new XMLHttpRequest()
-            reader.open('GET', path)
-            reader.onreadystatechange = () =>
             {
-                if (reader.readyState == 4 && reader.status == 200)
-                    onImageDownload(reader.response, index)
+                let setMap = assetMap.get(LAYERS[i])
+                for (let j=0; j<LAYER_SETS.length; j++)
+                {
+                    let imageDatas = setMap.get(LAYER_SETS[j])
+                    layerManager.addLayerAt(LAYER_SETS[j], LAYERS[i], imageDatas[0])
+                }
             }
-            reader.responseType = 'blob'
-            reader.send()
+            layerManager.drawLayerSet(LAYER_SETS[1], canvas)
         }
 
-        function onImageDownload(blob, index)
+        function isNarrowScreen()
         {
-            let bloburl = URL.createObjectURL(blob)
-            let img = new Image()
-            img.src = bloburl
-            img.onload = () => 
-            {
-                URL.revokeObjectURL(bloburl)
-                onImageLoad(img, index)
-            };
-        }
-
-        function onImageLoad(img, index)
-        {
-            layerManager.addLayerAt(LAYERS[index], getImageDataFromImage(img))
-            layerManager.drawIfReady(img.width, img.height)
-        }
-
-        function getImageDataFromImage(img)
-        {
-            let canvas = document.createElement('canvas')
-            let ctxt = canvas.getContext('2d')
-            canvas.width = img.width
-            canvas.height = img.height
-            ctxt.drawImage(img, 0, 0)
-            return ctxt.getImageData(0, 0, img.width, img.height)
+            let aspectRatio = window.innerWidth/window.innerHeight
+            return aspectRatio < 1
         }
 
         function isPhone()
@@ -112,10 +110,10 @@
     <body>
         <canvas id="canvas"></canvas>
         <div id="list-color">
-            <div id="list-item1" class="list-item-color" style = "background-color: #ADFF2F;"><p>glass</p></div>
+            <div id="list-item1" class="list-item-color" style = "background-color: #ff2f63;"><p>glass</p></div>
             <div id="list-item2" class="list-item-color" style = "background-color: #55E6C1;"><p>floor</p></div>
             <div id="list-item3" class="list-item-color" style = "background-color: #EAB543;"><p>bath</p></div>
-            <div id="list-item4" class="list-item-color" style = "background-color: #FEA47F;"><p>base</p></div>
+            <div id="list-item4" class="list-item-color" style = "background-color: #929090;"><p>base</p></div>
         </div>
     </body>
 </html>
