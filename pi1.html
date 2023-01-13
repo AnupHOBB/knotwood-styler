@@ -1,0 +1,116 @@
+<html>
+    <script type="module">
+        import {LayerManager} from "./LayerManager.js"
+        import {AssetManager} from "./AssetManager.js"
+        import {toImageDataFromImage} from "./Helpers.js"
+        const LAYERS = ['glass', 'floor', 'bath', 'base'] 
+        const LAYER_SETS = ['mobile', 'pc']
+
+        let canvas
+        let layerManager
+
+        window.onload = () =>
+        {
+            canvas = document.getElementById("canvas")
+ 
+            for (let i=1; i<=LAYERS.length; i++)
+            {
+                let listItem = document.getElementById('list-item'+i)
+                listItem.onclick = (e)=>
+                {
+                    layerManager.modifyAllLayerSets(LAYERS[i-1], listItem.style.backgroundColor)
+                    if (isNarrowScreen())
+                        layerManager.drawLayerSet(LAYER_SETS[0], canvas)
+                    else
+                        layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+                }
+            }
+                
+            let assetManager = new AssetManager(LAYER_SETS, LAYERS)
+            assetManager.loadAssets(onAssetDownload)
+            layerManager = new LayerManager(LAYER_SETS, LAYERS)
+        }
+
+        window.onresize = () =>
+        {
+            if (isNarrowScreen())
+                layerManager.drawLayerSet(LAYER_SETS[0], canvas)
+            else
+                layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+        }
+
+        function onAssetDownload(assetMap)
+        {
+            for (let i=0; i<LAYERS.length; i++)
+            {
+                let setMap = assetMap.get(LAYERS[i])
+                for (let j=0; j<LAYER_SETS.length; j++)
+                {
+                    let imageDatas = setMap.get(LAYER_SETS[j])
+                    layerManager.addLayerAt(LAYER_SETS[j], LAYERS[i], imageDatas[0])
+                }
+            }
+            if (isNarrowScreen())
+                layerManager.drawLayerSet(LAYER_SETS[0], canvas)
+            else
+                layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+        }
+
+        function isNarrowScreen()
+        {
+            let aspectRatio = window.innerWidth/window.innerHeight
+            return aspectRatio < 1
+        }
+    </script>
+    <style>
+            canvas
+            {
+                width: 100%;
+                height: 100%;
+            }
+
+            div#list-color
+            {
+                position: absolute;
+                top: 2%;
+                left: 2%;
+                width: 40%;
+                height: 20%;
+                padding: 20px;
+                max-height: 100px;
+                background-color: rgba(0, 0, 0, 0.4);
+                border-radius: 3ch;
+                display: flex;
+                overflow-x: auto;
+            }
+
+            div.list-item-color
+            {
+                position: relative;
+                min-width: 80px;
+                width: 25%;
+                margin-right: 10%;
+                height: 90%;
+                border-radius: 3ch;
+            }
+
+            p
+            {
+                display: block;
+                width: 2%;
+                margin: auto;
+                position: relative;
+                top: 35%;
+                left: -20%;
+            }
+    </style>
+    <body>
+        <canvas id="canvas"></canvas>
+        <div id="list-color">
+            <div id="list-item1" class="list-item-color" style = "background-color: #ff2f63;"><p>glass</p></div>
+            <div id="list-item2" class="list-item-color" style = "background-color: #55E6C1;"><p>floor</p></div>
+            <div id="list-item3" class="list-item-color" style = "background-color: #EAB543;"><p>bath</p></div>
+            <div id="list-item4" class="list-item-color" style = "background-color: #929090;"><p>base</p></div>
+        </div>
+    </body>
+</html>
