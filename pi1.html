@@ -19,7 +19,7 @@
                 listItem.onclick = (e)=>
                 {
                     layerManager.modifyAllLayerSets(LAYERS[i-1], listItem.style.backgroundColor)
-                    if (isPhone())
+                    if (isNarrowScreen())
                         layerManager.drawLayerSet(LAYER_SETS[0], canvas)
                     else
                         layerManager.drawLayerSet(LAYER_SETS[1], canvas)
@@ -33,7 +33,7 @@
 
         window.onresize = () =>
         {
-            if (isPhone())
+            if (isNarrowScreen())
                 layerManager.drawLayerSet(LAYER_SETS[0], canvas)
             else
                 layerManager.drawLayerSet(LAYER_SETS[1], canvas)
@@ -50,7 +50,7 @@
                     layerManager.addLayerAt(LAYER_SETS[j], LAYERS[i], imageDatas[0])
                 }
             }
-            if (isPhone())
+            if (isNarrowScreen())
                 layerManager.drawLayerSet(LAYER_SETS[0], canvas)
             else
                 layerManager.drawLayerSet(LAYER_SETS[1], canvas)
@@ -60,12 +60,6 @@
         {
             let aspectRatio = window.innerWidth/window.innerHeight
             return aspectRatio < 1
-        }
-
-        function isPhone()
-        {
-            const devices = [/Android/i,/webOS/i,/iPhone/i,/iPad/i,/iPod/i,/BlackBerry/i,/Windows Phone/i]
-            return devices.some((device) => { return navigator.userAgent.match(device) })
         }
     </script>
     <style>
