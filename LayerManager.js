@@ -2,22 +2,22 @@ import { toRGB, addColor, multiplyColor, duplicateImagedata } from './Helpers.js
 
 export class LayerManager
 {
-    constructor(layerSetNames, layerNames)
+    constructor(screenTypes, layerNames)
     {
         this.layerManagerMap = new Map()
-        for (let i=0; i<layerSetNames.length; i++)
-            this.layerManagerMap.set(layerSetNames[i], new LayerRenderer(layerNames))
+        for (let i=0; i<screenTypes.length; i++)
+            this.layerManagerMap.set(screenTypes[i], new LayerRenderer(layerNames))
     }
 
-    addLayerAt(layerSetName, layerName, imageData)
+    addLayerAt(screenType, layerName, imageData)
     {
-        let layerRenderer = this.layerManagerMap.get(layerSetName)
+        let layerRenderer = this.layerManagerMap.get(screenType)
         layerRenderer.addLayerAt(layerName, imageData)
     }
 
-    modifyLayer(layerSetName, layerName, colorInString)
+    modifyLayer(screenType, layerName, colorInString)
     {
-        let layerRenderer = this.layerManagerMap.get(layerSetName)
+        let layerRenderer = this.layerManagerMap.get(screenType)
         layerRenderer.modifyLayer(layerName, colorInString)
     }
 
@@ -28,10 +28,10 @@ export class LayerManager
             layerRenderer.modifyLayer(layerName, colorInString)
     }
 
-    drawLayerSet(layerSetName, canvas)
+    drawLayerSet(screenType, canvas)
     {
-        let layerSet = this.layerManagerMap.get(layerSetName)
-        layerSet.renderToCanvas(canvas)
+        let layerRenderer = this.layerManagerMap.get(screenType)
+        layerRenderer.renderToCanvas(canvas)
     }
 }
 
