@@ -21,7 +21,7 @@ export class LayerManager
         layerRenderer.modifyLayer(layerName, colorInString)
     }
 
-    modifyAllLayerSets(layerName, colorInString)
+    modifyLayerForAllScreens(layerName, colorInString)
     {
         let layerRenderers = this.layerManagerMap.values()
         for (let layerRenderer of layerRenderers)

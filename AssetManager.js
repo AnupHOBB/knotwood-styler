@@ -29,9 +29,9 @@ export class AssetManager
         this.core.modifyLayer(screenType, layerName, colorInString)
     }
 
-    modifyAllLayerSets(layerName, colorInString)
+    modifyLayerForAllScreens(layerName, colorInString)
     {
-        this.core.modifyAllLayerSets(layerName, colorInString)
+        this.core.modifyLayerForAllScreens(layerName, colorInString)
     }
 
     drawLayerSet(screenType, canvas)
@@ -66,9 +66,9 @@ class AssetManagerCore
         this.layerManager.modifyLayer(screenType, layerName, colorInString)
     }
 
-    modifyAllLayerSets(layerName, colorInString)
+    modifyLayerForAllScreens(layerName, colorInString)
     {
-        this.layerManager.modifyAllLayerSets(layerName, colorInString)
+        this.layerManager.modifyLayerForAllScreens(layerName, colorInString)
     }
 
     drawLayerSet(screenType, canvas)

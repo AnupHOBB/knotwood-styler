@@ -18,7 +18,7 @@
                 let listItem = document.getElementById('list-item'+i)
                 listItem.onclick = (e)=>
                 {
-                    assetManager.modifyAllLayerSets(LAYERS[i-1], listItem.style.backgroundColor)
+                    assetManager.modifyLayerForAllScreens(LAYERS[i-1], listItem.style.backgroundColor)
                     drawImageLayers()
                 }
             }   
