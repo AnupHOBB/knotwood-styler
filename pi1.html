@@ -1,6 +1,6 @@
 <html>
     <script type="module">
-        import {AssetManager} from "./AssetManager.js"
+        import {AssetManager} from "./core/AssetManager.js"
 
         const LAYERS = ['glass', 'floor', 'bath', 'base'] 
         const SCREEN_TYPES = ['mobile', 'pc']
@@ -31,45 +31,44 @@
             let assetMap = new Map()
             {
                 let colorMap = new Map()
-                colorMap.set('color0', '0')
+                colorMap.set('color0', 'colors/0.png')
                 let textureMap = new Map()
-                textureMap.set('texture0', '0')
+                textureMap.set('texture0', 'textures/0.png')
                 assetMap.set('glass', [colorMap, textureMap])
             }
             {
                 let colorMap = new Map()
-                colorMap.set('color0', '0')
+                colorMap.set('color0', 'colors/0.png')
                 let textureMap = new Map()
-                textureMap.set('texture0', '0')
-                textureMap.set('texture1', '1')
-                textureMap.set('texture2', '2')
-                textureMap.set('texture3', '3')
-                textureMap.set('texture4', '4')
-                textureMap.set('texture5', '5')
+                textureMap.set('texture0', 'textures/0.png')
+                textureMap.set('texture1', 'textures/1.png')
+                textureMap.set('texture2', 'textures/2.png')
+                textureMap.set('texture3', 'textures/3.png')
+                textureMap.set('texture4', 'textures/4.png')
+                textureMap.set('texture5', 'textures/5.png')
                 assetMap.set('floor', [colorMap, textureMap])
             }
             {
                 let colorMap = new Map()
-                colorMap.set('color0', '0')
+                colorMap.set('color0', 'colors/0.png')
                 let textureMap = new Map()
-                textureMap.set('texture0', '0')
-                textureMap.set('texture1', '1')
-                textureMap.set('texture2', '2')
-                textureMap.set('texture3', '3')
-                textureMap.set('texture4', '4')
-                textureMap.set('texture5', '5')
+                textureMap.set('texture0', 'textures/0.png')
+                textureMap.set('texture1', 'textures/1.png')
+                textureMap.set('texture2', 'textures/2.png')
+                textureMap.set('texture3', 'textures/3.png')
+                textureMap.set('texture4', 'textures/4.png')
+                textureMap.set('texture5', 'textures/5.png')
                 assetMap.set('bath', [colorMap, textureMap])
             }
             {
                 let colorMap = new Map()
-                colorMap.set('color0', '0')
+                colorMap.set('color0', 'colors/0.png')
                 let textureMap = new Map()
-                textureMap.set('texture0', '0')
+                textureMap.set('texture0', 'textures/0.png')
                 assetMap.set('base', [colorMap, textureMap])
             }
             return assetMap
         }
-
 
         window.onresize = drawImageLayers
 

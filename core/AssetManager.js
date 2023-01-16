@@ -1,4 +1,4 @@
-import {AssetDownloader} from './AssetDownloader.js'
+import { toImageDataFromImage } from './Helpers.js'
 import {LayerManager} from "./LayerManager.js"
 /**
  * This class downloads all the images and stores them as image data within the assetMap variable.
@@ -45,26 +45,21 @@ export class AssetManager
     }
 }
 
-const ASSET_TYPE_COLOR = 'color'
-const ASSET_TYPE_TEXTURE = 'texture'
-const ASSET_FOLDER = 'assets/pi/'
-const ASSET_EXTENSION = '.png'
-const COLORS_FOLDER= 'colors'
-const TEXTURES_FOLDER = 'textures'
-
 class AssetManagerCore
-{
+{    
     constructor(screenTypes, layerNames, assetPathMap)
     {
+        this.mainFolderPath = '../assets/'
         this.screenTypes = screenTypes
         this.layerNames = layerNames
-        this.downloader = new AssetDownloader()
         this.assetMap = new Map()
         this.assetCounter = 0
         this.totalAssets = this.getTotalAssetCount(assetPathMap, screenTypes)
         this.layerManager = new LayerManager(screenTypes, layerNames)
         this.pathMap = assetPathMap
         this.defaultTextures = []
+        this.assetTypeColor = 'color'
+        this.assetTypeTexture = 'texture'
         this.setupAssetMap()
     }
 
@@ -157,8 +152,8 @@ class AssetManagerCore
                 let colorkeys = colorMap.keys()
                 for (let colorKey of colorkeys)
                 {   
-                    const path = ASSET_FOLDER + this.screenTypes[i] + '/' + this.layerNames[j] + '/'+ COLORS_FOLDER +'/' + colorMap.get(colorKey) + ASSET_EXTENSION
-                    this.downloader.downloadAssets(path, (imageData)=>this.onDownload(this.layerNames[j], this.screenTypes[i], imageData, onDownloadComplete, ASSET_TYPE_COLOR, colorKey))
+                    const path = this.mainFolderPath + this.screenTypes[i] + '/' + this.layerNames[j] + '/' + colorMap.get(colorKey)
+                    this.downloadAssets(path, (imageData)=>this.onDownload(this.layerNames[j], this.screenTypes[i], imageData, onDownloadComplete, this.assetTypeColor, colorKey))
                 }
                 let textureMap = assets[1]
                 let textureKeys = textureMap.keys()
@@ -166,11 +161,33 @@ class AssetManagerCore
                 {
                     if (this.defaultTextures[j] == undefined)
                         this.defaultTextures[j] = textureKey
-                    const path = ASSET_FOLDER + this.screenTypes[i] + '/' + this.layerNames[j] + '/'+ TEXTURES_FOLDER +'/' + textureMap.get(textureKey) + ASSET_EXTENSION
-                    this.downloader.downloadAssets(path, (imageData)=>this.onDownload(this.layerNames[j], this.screenTypes[i], imageData, onDownloadComplete, ASSET_TYPE_TEXTURE, textureKey))
+                    const path = this.mainFolderPath + this.screenTypes[i] + '/' + this.layerNames[j] + '/' + textureMap.get(textureKey)
+                    this.downloadAssets(path, (imageData)=>this.onDownload(this.layerNames[j], this.screenTypes[i], imageData, onDownloadComplete, this.assetTypeTexture, textureKey))
                 }
             }
         }
+    }
+
+    downloadAssets(path, onDownload)
+    {
+        let reader = new XMLHttpRequest()
+        reader.open('GET', path)
+        reader.onreadystatechange = () =>
+        {
+            if (reader.readyState == 4 && reader.status == 200)
+            {    
+                let bloburl = URL.createObjectURL(reader.response)
+                let img = new Image()
+                img.src = bloburl
+                img.onload = () => 
+                {
+                    URL.revokeObjectURL(bloburl)
+                    onDownload(toImageDataFromImage(img))
+                }
+            }
+        }
+        reader.responseType = 'blob'
+        reader.send()
     }
 
     onDownload(layer, screenType, imageData, onDownloadComplete, assetType, key)
@@ -197,12 +214,12 @@ class AssetManagerCore
     {
         let screenMap = this.assetMap.get(layer)
         let maps = screenMap.get(screenType)
-        if (assetType == ASSET_TYPE_COLOR)
+        if (assetType == this.assetTypeColor)
         {
             let colorMap = maps[0]
             colorMap.set(key,imageData)
         }
-        else if (assetType == ASSET_TYPE_TEXTURE)
+        else if (assetType == this.assetTypeTexture)
         {
             let textureMap = maps[1]
             textureMap.set(key,imageData)
