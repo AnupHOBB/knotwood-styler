@@ -1,4 +1,4 @@
-import { toRGB, addColor, multiplyColor, duplicateImagedata } from './Helpers.js'
+import { addColor, multiplyColor, duplicateImagedata } from './Helpers.js'
 
 export class LayerManager
 {
@@ -15,20 +15,33 @@ export class LayerManager
         layerRenderer.addLayerAt(layerName, imageData)
     }
 
-    modifyLayer(screenType, layerName, colorInString)
+    changeColor(screenType, layerName, colorImageData)
     {
         let layerRenderer = this.layerManagerMap.get(screenType)
-        layerRenderer.modifyLayer(layerName, colorInString)
+        layerRenderer.changeColor(layerName, colorImageData)
     }
 
-    modifyLayerForAllScreens(layerName, colorInString)
+    changeLayer(screenType, layerName, newImageData)
+    {
+        let layerRenderer = this.layerManagerMap.get(screenType)
+        layerRenderer.changeLayer(layerName, newImageData)
+    }
+    
+    changeColorForAllScreens(layerName, colorImageData)
     {
         let layerRenderers = this.layerManagerMap.values()
         for (let layerRenderer of layerRenderers)
-            layerRenderer.modifyLayer(layerName, colorInString)
+            layerRenderer.changeColor(layerName, colorImageData)
     }
 
-    drawLayerSet(screenType, canvas)
+    changeLayerForAllScreens(layerName, newImageData)
+    {
+        let layerRenderers = this.layerManagerMap.values()
+        for (let layerRenderer of layerRenderers)
+            layerRenderer.changeLayer(layerName, newImageData)
+    }
+
+    drawOnCanvas(screenType, canvas)
     {
         let layerRenderer = this.layerManagerMap.get(screenType)
         layerRenderer.renderToCanvas(canvas)
@@ -47,41 +60,52 @@ class LayerRenderer
     {
         this.finalImageData = null
         this.layerNames = layerNames
-        this.ogLayersDataMap = new Map()
-        this.layersDataMap = new Map() 
+        this.actualLayersDataMap = new Map()
+        this.visibleLayersDataMap = new Map() 
     }
 
     addLayerAt(layerName, imageData)
     {
-        this.ogLayersDataMap.set(layerName, imageData)
-        this.layersDataMap.set(layerName, imageData)
+        this.actualLayersDataMap.set(layerName, imageData)
+        this.visibleLayersDataMap.set(layerName, imageData)
         if (this.finalImageData == null)
         {
             let array = new Uint8ClampedArray(imageData.data.length)
             this.finalImageData = new ImageData(array, imageData.width, imageData.height)
         }
-        if (this.layerNames.length == this.layersDataMap.size)
+        if (this.layerNames.length == this.visibleLayersDataMap.size)
             this.drawLayers()
     }
 
-    modifyLayer(layerName, colorInString)
+    changeColor(layerName, colorImageData)
     {
-        let imageData = duplicateImagedata(this.ogLayersDataMap.get(layerName))
-        this.layersDataMap.set(layerName, imageData)
-        let pixels = imageData.data
-        let rgbval = toRGB(colorInString)
-        for(let i=0; i<pixels.length; i+=4)
+        let imageData = duplicateImagedata(this.actualLayersDataMap.get(layerName))
+        this.visibleLayersDataMap.set(layerName, imageData)
+        let imagePixels = imageData.data
+        let colorPixels = colorImageData.data
+        for(let i=0; i<imagePixels.length; i+=4)
         {
-            pixels[i] = multiplyColor(pixels[i], rgbval.r)
-            pixels[i+1] = multiplyColor(pixels[i+1], rgbval.g)
-            pixels[i+2] = multiplyColor(pixels[i+2], rgbval.b)
+            imagePixels[i] = multiplyColor(imagePixels[i], colorPixels[i])
+            imagePixels[i+1] = multiplyColor(imagePixels[i+1], colorPixels[i+1])
+            imagePixels[i+2] = multiplyColor(imagePixels[i+2], colorPixels[i+2])
         }
+        this.drawLayers()
+    }
+
+    changeLayer(layerName, newImageData)
+    {
+        let oldImageData = this.actualLayersDataMap.get(layerName)
+        this.visibleLayersDataMap.set(layerName, oldImageData)
+        let oldPixels = oldImageData.data
+        let newPixels = newImageData.data
+        for(let i=0; i<oldPixels.length; i++)
+            oldPixels[i] = newPixels[i]
         this.drawLayers()
     }
 
     renderToCanvas(canvas)
     {
-        if (this.layerNames.length == this.layersDataMap.size)
+        if (this.layerNames.length == this.visibleLayersDataMap.size)
         {
             canvas.width = this.finalImageData.width
             canvas.height = this.finalImageData.height
@@ -92,7 +116,7 @@ class LayerRenderer
 
     drawLayers()
     {
-        let firstImageData = this.layersDataMap.get(this.layerNames[0])
+        let firstImageData = this.visibleLayersDataMap.get(this.layerNames[0])
         let imageSize = firstImageData.data.length
         for (let i=0; i<imageSize; i+=4)
         {
@@ -102,9 +126,9 @@ class LayerRenderer
             let finalB = multiplyColor(firstImageData.data[i + 2], firstA) 
             if (firstA < 255)
             {
-                for (let j=1; j<this.layersDataMap.size; j++)
+                for (let j=1; j<this.visibleLayersDataMap.size; j++)
                 {
-                    let imageData = this.layersDataMap.get(this.layerNames[j])
+                    let imageData = this.visibleLayersDataMap.get(this.layerNames[j])
                     let a = imageData.data[i + 3]
                     let r = multiplyColor(imageData.data[i], a)
                     let g = multiplyColor(imageData.data[i + 1], a)

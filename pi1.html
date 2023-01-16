@@ -1,7 +1,7 @@
 <html>
     <script type="module">
         import {AssetManager} from "./AssetManager.js"
-        import {toImageDataFromImage} from "./Helpers.js"
+
         const LAYERS = ['glass', 'floor', 'bath', 'base'] 
         const SCREEN_TYPES = ['mobile', 'pc']
 
@@ -11,27 +11,74 @@
         window.onload = () =>
         {
             canvas = document.getElementById("canvas")
-            assetManager = new AssetManager(SCREEN_TYPES, LAYERS)
+            let assets = prepareAssetData()
+            assetManager = new AssetManager(SCREEN_TYPES, LAYERS, assets)
             assetManager.loadAssets(drawImageLayers)
             for (let i=1; i<=LAYERS.length; i++)
             {
                 let listItem = document.getElementById('list-item'+i)
                 listItem.onclick = (e)=>
                 {
-                    assetManager.modifyLayerForAllScreens(LAYERS[i-1], listItem.style.backgroundColor)
+                    assetManager.changeLayerForAllScreens(LAYERS[i-1], (i>1 && i<LAYERS.length)?'texture2':'texture0')
+                    //assetManager.changeColorForAllScreens(LAYERS[i-1], 'color0')
                     drawImageLayers()
                 }
             }   
         }
+
+        function prepareAssetData()
+        {
+            let assetMap = new Map()
+            {
+                let colorMap = new Map()
+                colorMap.set('color0', '0')
+                let textureMap = new Map()
+                textureMap.set('texture0', '0')
+                assetMap.set('glass', [colorMap, textureMap])
+            }
+            {
+                let colorMap = new Map()
+                colorMap.set('color0', '0')
+                let textureMap = new Map()
+                textureMap.set('texture0', '0')
+                textureMap.set('texture1', '1')
+                textureMap.set('texture2', '2')
+                textureMap.set('texture3', '3')
+                textureMap.set('texture4', '4')
+                textureMap.set('texture5', '5')
+                assetMap.set('floor', [colorMap, textureMap])
+            }
+            {
+                let colorMap = new Map()
+                colorMap.set('color0', '0')
+                let textureMap = new Map()
+                textureMap.set('texture0', '0')
+                textureMap.set('texture1', '1')
+                textureMap.set('texture2', '2')
+                textureMap.set('texture3', '3')
+                textureMap.set('texture4', '4')
+                textureMap.set('texture5', '5')
+                assetMap.set('bath', [colorMap, textureMap])
+            }
+            {
+                let colorMap = new Map()
+                colorMap.set('color0', '0')
+                let textureMap = new Map()
+                textureMap.set('texture0', '0')
+                assetMap.set('base', [colorMap, textureMap])
+            }
+            return assetMap
+        }
+
 
         window.onresize = drawImageLayers
 
         function drawImageLayers()
         {
             if (isNarrowScreen())
-                assetManager.drawLayerSet(SCREEN_TYPES[0], canvas)
+                assetManager.drawOnCanvas(SCREEN_TYPES[0], canvas)
             else
-                assetManager.drawLayerSet(SCREEN_TYPES[1], canvas)
+                assetManager.drawOnCanvas(SCREEN_TYPES[1], canvas)
         }
 
         function isNarrowScreen()

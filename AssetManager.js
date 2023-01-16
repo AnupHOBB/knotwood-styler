@@ -9,9 +9,9 @@ import {LayerManager} from "./LayerManager.js"
  */
 export class AssetManager
 {
-    constructor(screenTypes, layerNames)
+    constructor(screenTypes, layerNames, assetPathMap)
     {
-        this.core = new AssetManagerCore(screenTypes, layerNames)
+        this.core = new AssetManagerCore(screenTypes, layerNames, assetPathMap)
     }
 
     loadAssets(onDownloadComplete)
@@ -19,74 +19,130 @@ export class AssetManager
         this.core.loadAssets(onDownloadComplete)
     }
 
-    addLayerAt(screenType, layerName, imageData)
+    changeColor(layerName, colorKeyName)
     {
-        this.core.addLayerAt(screenType, layerName, imageData)
+        this.core.changeLayer(screenType, layerName, colorKeyName)
     }
 
-    modifyLayer(screenType, layerName, colorInString)
+    changeLayer(screenType, layerName, textureKeyName)
     {
-        this.core.modifyLayer(screenType, layerName, colorInString)
+        this.core.changeLayer(screenType, layerName, textureKeyName)
+    }
+    
+    changeColorForAllScreens(layerName, colorKeyName)
+    {
+        this.core.changeColorForAllScreens(layerName, colorKeyName)
     }
 
-    modifyLayerForAllScreens(layerName, colorInString)
+    changeLayerForAllScreens(layerName, textureKeyName)
     {
-        this.core.modifyLayerForAllScreens(layerName, colorInString)
+        this.core.changeLayerForAllScreens(layerName, textureKeyName)
     }
 
-    drawLayerSet(screenType, canvas)
+    drawOnCanvas(screenType, canvas)
     {
-        this.core.drawLayerSet(screenType, canvas)
+        this.core.drawOnCanvas(screenType, canvas)
     }
 }
 
+const ASSET_TYPE_COLOR = 'color'
+const ASSET_TYPE_TEXTURE = 'texture'
+const ASSET_FOLDER = 'assets/pi/'
+const ASSET_EXTENSION = '.png'
+const COLORS_FOLDER= 'colors'
+const TEXTURES_FOLDER = 'textures'
+
 class AssetManagerCore
 {
-    constructor(screenTypes, layerNames)
+    constructor(screenTypes, layerNames, assetPathMap)
     {
-        this.folder = 'assets/pi/'
-        this.extension = '.png'
         this.screenTypes = screenTypes
         this.layerNames = layerNames
         this.downloader = new AssetDownloader()
         this.assetMap = new Map()
         this.assetCounter = 0
-        this.totalAssets = screenTypes.length * layerNames.length
+        this.totalAssets = this.getTotalAssetCount(assetPathMap, screenTypes)
         this.layerManager = new LayerManager(screenTypes, layerNames)
+        this.pathMap = assetPathMap
+        this.defaultTextures = []
         this.setupAssetMap()
     }
 
-    addLayerAt(screenType, layerName, imageData)
+    changeColor(screenType, layerName, colorKeyName)
     {
-        this.layerManager.addLayerAt(screenType, layerName, imageData)
+        let screenMap = this.assetMap.get(layerName)
+        let maps = screenMap.get(screenType)
+        let colorMap = maps[0] 
+        let colorImageData = colorMap.get(colorKeyName)
+        this.layerManager.changeColor(screenType, layerName, colorImageData)
     }
 
-    modifyLayer(screenType, layerName, colorInString)
+    changeLayer(screenType, layerName, textureKeyName)
     {
-        this.layerManager.modifyLayer(screenType, layerName, colorInString)
+        let screenMap = this.assetMap.get(layerName)
+        let maps = screenMap.get(screenType)
+        let textureMap = maps[1] 
+        let newImageData = textureMap.get(textureKeyName)
+        this.layerManager.changeLayer(screenType, layerName, newImageData)
+    }
+    
+    changeColorForAllScreens(layerName, colorKeyName)
+    {
+        let screenMap = this.assetMap.get(layerName)
+        for (let i=0; i<this.screenTypes.length; i++)
+        {
+            let maps = screenMap.get(this.screenTypes[i])
+            let colorMap = maps[0] 
+            let colorImageData = colorMap.get(colorKeyName)
+            this.layerManager.changeColor(this.screenTypes[i], layerName, colorImageData)
+        }
     }
 
-    modifyLayerForAllScreens(layerName, colorInString)
+    changeLayerForAllScreens(layerName, textureKeyName)
     {
-        this.layerManager.modifyLayerForAllScreens(layerName, colorInString)
+        let screenMap = this.assetMap.get(layerName)
+        for (let i=0; i<this.screenTypes.length; i++)
+        {
+            let maps = screenMap.get(this.screenTypes[i])
+            let textureMap = maps[1] 
+            let newImageData = textureMap.get(textureKeyName)
+            this.layerManager.changeLayer(this.screenTypes[i], layerName, newImageData)
+        }
     }
 
-    drawLayerSet(screenType, canvas)
+    drawOnCanvas(screenType, canvas)
     {
-        this.layerManager.drawLayerSet(screenType, canvas)
+        this.layerManager.drawOnCanvas(screenType, canvas)
+    }
+
+    getTotalAssetCount(assetPathMap, screenTypes)
+    {
+        let assetCounter = 0
+        let layers = assetPathMap.keys()
+        for (let layer of layers)
+        {
+            let assets = assetPathMap.get(layer)
+            for (let i=0; i<assets.length; i++)
+            {
+                let map = assets[i]
+                assetCounter += map.size
+            }
+        }
+        return assetCounter * screenTypes.length
     }
 
     setupAssetMap()
     {
         for (let j=0; j<this.layerNames.length; j++)
         {
-            let setMap = new Map()
+            let screenMap = new Map()
             for (let i=0; i<this.screenTypes.length; i++)
             {
-                let imageDatas = []
-                setMap.set(this.screenTypes[i], imageDatas)
+                let colorMap = new Map()
+                let textureMap = new Map()
+                screenMap.set(this.screenTypes[i], [colorMap, textureMap])
             }
-            this.assetMap.set(this.layerNames[j], setMap)
+            this.assetMap.set(this.layerNames[j], screenMap)
         }
     }
 
@@ -96,17 +152,30 @@ class AssetManagerCore
         {
             for (let j=0; j<this.layerNames.length; j++)
             {
-                const path = this.folder + this.screenTypes[i] + '/' + this.layerNames[j] + this.extension
-                this.downloader.downloadAssets(path, (imageData)=>this.onDownload(this.layerNames[j], this.screenTypes[i], imageData, onDownloadComplete))
+                let assets = this.pathMap.get(this.layerNames[j])
+                let colorMap = assets[0]
+                let colorkeys = colorMap.keys()
+                for (let colorKey of colorkeys)
+                {   
+                    const path = ASSET_FOLDER + this.screenTypes[i] + '/' + this.layerNames[j] + '/'+ COLORS_FOLDER +'/' + colorMap.get(colorKey) + ASSET_EXTENSION
+                    this.downloader.downloadAssets(path, (imageData)=>this.onDownload(this.layerNames[j], this.screenTypes[i], imageData, onDownloadComplete, ASSET_TYPE_COLOR, colorKey))
+                }
+                let textureMap = assets[1]
+                let textureKeys = textureMap.keys()
+                for (let textureKey of textureKeys)
+                {
+                    if (this.defaultTextures[j] == undefined)
+                        this.defaultTextures[j] = textureKey
+                    const path = ASSET_FOLDER + this.screenTypes[i] + '/' + this.layerNames[j] + '/'+ TEXTURES_FOLDER +'/' + textureMap.get(textureKey) + ASSET_EXTENSION
+                    this.downloader.downloadAssets(path, (imageData)=>this.onDownload(this.layerNames[j], this.screenTypes[i], imageData, onDownloadComplete, ASSET_TYPE_TEXTURE, textureKey))
+                }
             }
         }
     }
 
-    onDownload(layer, set, imageData, onDownloadComplete)
+    onDownload(layer, screenType, imageData, onDownloadComplete, assetType, key)
     {
-        let setMap = this.assetMap.get(layer)
-        let imageDatas = setMap.get(set)
-        imageDatas.push(imageData)
+        this.storeAssets(layer, screenType, imageData, assetType, key)
         this.assetCounter++
         if (this.assetCounter == this.totalAssets)
         {
@@ -115,11 +184,28 @@ class AssetManagerCore
                 let screenMap = this.assetMap.get(this.layerNames[i])
                 for (let j=0; j<this.screenTypes.length; j++)
                 {
-                    let imageDatas = screenMap.get(this.screenTypes[j])
-                    this.layerManager.addLayerAt(this.screenTypes[j], this.layerNames[i], imageDatas[0])
+                    let maps = screenMap.get(this.screenTypes[j])
+                    let textureMap = maps[1]
+                    this.layerManager.addLayerAt(this.screenTypes[j], this.layerNames[i], textureMap.get(this.defaultTextures[i]))
                 }
             }
             onDownloadComplete()
+        }
+    }
+
+    storeAssets(layer, screenType, imageData, assetType, key)
+    {
+        let screenMap = this.assetMap.get(layer)
+        let maps = screenMap.get(screenType)
+        if (assetType == ASSET_TYPE_COLOR)
+        {
+            let colorMap = maps[0]
+            colorMap.set(key,imageData)
+        }
+        else if (assetType == ASSET_TYPE_TEXTURE)
+        {
+            let textureMap = maps[1]
+            textureMap.set(key,imageData)
         }
     }
 }
