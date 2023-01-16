@@ -4,6 +4,7 @@
 
         const LAYERS = ['glass', 'floor', 'bath', 'base'] 
         const SCREEN_TYPES = ['mobile', 'pc']
+        const ICONS = ['icons/0.png', 'icons/1.png', 'icons/2.png', 'icons/3.png', 'icons/4.png', 'icons/5.png', 'icons/6.png', 'icons/7.png']
 
         let canvas
         let assetManager
@@ -12,7 +13,7 @@
         {
             canvas = document.getElementById("canvas")
             let assets = prepareAssetData()
-            assetManager = new AssetManager(SCREEN_TYPES, LAYERS, assets)
+            assetManager = new AssetManager(SCREEN_TYPES, LAYERS, assets, ICONS)
             assetManager.loadAssets(drawImageLayers)
             for (let i=1; i<=LAYERS.length; i++)
             {
@@ -22,6 +23,8 @@
                     assetManager.changeLayerForAllScreens(LAYERS[i-1], (i>1 && i<LAYERS.length)?'texture2':'texture0')
                     //assetManager.changeColorForAllScreens(LAYERS[i-1], 'color0')
                     drawImageLayers()
+                    console.log(assetManager.getColorIcons(LAYERS[1]))
+                    console.log(assetManager.getImageIcons(LAYERS[1]))
                 }
             }   
         }
@@ -34,7 +37,10 @@
                 colorMap.set('color0', 'colors/0.png')
                 let textureMap = new Map()
                 textureMap.set('texture0', 'textures/0.png')
-                assetMap.set('glass', [colorMap, textureMap])
+                let iconMap = new Map()
+                iconMap.set('icon0', '0.png')
+                iconMap.set('icon1', '1.png')
+                assetMap.set('glass', [colorMap, textureMap, iconMap])
             }
             {
                 let colorMap = new Map()
@@ -46,7 +52,10 @@
                 textureMap.set('texture3', 'textures/3.png')
                 textureMap.set('texture4', 'textures/4.png')
                 textureMap.set('texture5', 'textures/5.png')
-                assetMap.set('floor', [colorMap, textureMap])
+                let iconMap = new Map()
+                iconMap.set('icon0', '0.png')
+                iconMap.set('icon1', '1.png')
+                assetMap.set('floor', [colorMap, textureMap, iconMap])
             }
             {
                 let colorMap = new Map()
@@ -58,14 +67,20 @@
                 textureMap.set('texture3', 'textures/3.png')
                 textureMap.set('texture4', 'textures/4.png')
                 textureMap.set('texture5', 'textures/5.png')
-                assetMap.set('bath', [colorMap, textureMap])
+                let iconMap = new Map()
+                iconMap.set('icon0', '0.png')
+                iconMap.set('icon1', '1.png')
+                assetMap.set('bath', [colorMap, textureMap, iconMap])
             }
             {
                 let colorMap = new Map()
                 colorMap.set('color0', 'colors/0.png')
                 let textureMap = new Map()
                 textureMap.set('texture0', 'textures/0.png')
-                assetMap.set('base', [colorMap, textureMap])
+                let iconMap = new Map()
+                iconMap.set('icon0', '0.png')
+                iconMap.set('icon1', '1.png')
+                assetMap.set('base', [colorMap, textureMap, iconMap])
             }
             return assetMap
         }
