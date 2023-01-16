@@ -1,59 +1,37 @@
 <html>
     <script type="module">
-        import {LayerManager} from "./LayerManager.js"
         import {AssetManager} from "./AssetManager.js"
         import {toImageDataFromImage} from "./Helpers.js"
         const LAYERS = ['glass', 'floor', 'bath', 'base'] 
-        const LAYER_SETS = ['mobile', 'pc']
+        const SCREEN_TYPES = ['mobile', 'pc']
 
         let canvas
-        let layerManager
+        let assetManager
 
         window.onload = () =>
         {
             canvas = document.getElementById("canvas")
- 
+            assetManager = new AssetManager(SCREEN_TYPES, LAYERS)
+            assetManager.loadAssets(drawImageLayers)
             for (let i=1; i<=LAYERS.length; i++)
             {
                 let listItem = document.getElementById('list-item'+i)
                 listItem.onclick = (e)=>
                 {
-                    layerManager.modifyAllLayerSets(LAYERS[i-1], listItem.style.backgroundColor)
-                    if (isNarrowScreen())
-                        layerManager.drawLayerSet(LAYER_SETS[0], canvas)
-                    else
-                        layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+                    assetManager.modifyLayerForAllScreens(LAYERS[i-1], listItem.style.backgroundColor)
+                    drawImageLayers()
                 }
-            }
-                
-            let assetManager = new AssetManager(LAYER_SETS, LAYERS)
-            assetManager.loadAssets(onAssetDownload)
-            layerManager = new LayerManager(LAYER_SETS, LAYERS)
+            }   
         }
 
-        window.onresize = () =>
-        {
-            if (isNarrowScreen())
-                layerManager.drawLayerSet(LAYER_SETS[0], canvas)
-            else
-                layerManager.drawLayerSet(LAYER_SETS[1], canvas)
-        }
+        window.onresize = drawImageLayers
 
-        function onAssetDownload(assetMap)
+        function drawImageLayers()
         {
-            for (let i=0; i<LAYERS.length; i++)
-            {
-                let setMap = assetMap.get(LAYERS[i])
-                for (let j=0; j<LAYER_SETS.length; j++)
-                {
-                    let imageDatas = setMap.get(LAYER_SETS[j])
-                    layerManager.addLayerAt(LAYER_SETS[j], LAYERS[i], imageDatas[0])
-                }
-            }
             if (isNarrowScreen())
-                layerManager.drawLayerSet(LAYER_SETS[0], canvas)
+                assetManager.drawLayerSet(SCREEN_TYPES[0], canvas)
             else
-                layerManager.drawLayerSet(LAYER_SETS[1], canvas)
+                assetManager.drawLayerSet(SCREEN_TYPES[1], canvas)
         }
 
         function isNarrowScreen()
