@@ -2,9 +2,8 @@
     <script type="module">
         import {AssetManager} from "./core/AssetManager.js"
 
-        const LAYERS = ['glass', 'floor', 'bath', 'base'] 
+        const LAYERS = ['glass', 'bath', 'floor', 'base'] 
         const SCREEN_TYPES = ['mobile', 'pc']
-        const ICONS = ['icons/0.png', 'icons/1.png', 'icons/2.png', 'icons/3.png', 'icons/4.png', 'icons/5.png', 'icons/6.png', 'icons/7.png']
 
         let canvas
         let assetManager
@@ -13,15 +12,17 @@
         {
             canvas = document.getElementById("canvas")
             let assets = prepareAssetData()
-            assetManager = new AssetManager(SCREEN_TYPES, LAYERS, assets, ICONS)
-            assetManager.loadAssets(drawImageLayers)
+            assetManager = new AssetManager(SCREEN_TYPES, LAYERS, assets)
+            assetManager.downloadAssets(drawImageLayers)
             for (let i=1; i<=LAYERS.length; i++)
             {
                 let listItem = document.getElementById('list-item'+i)
                 listItem.onclick = (e)=>
                 {
-                    assetManager.changeLayerForAllScreens(LAYERS[i-1], (i>1 && i<LAYERS.length)?'texture2':'texture0')
-                    //assetManager.changeColorForAllScreens(LAYERS[i-1], 'color0')
+                    if (i>1 && i<LAYERS.length)
+                        assetManager.changeLayerForAllScreens(LAYERS[i-1], 'texture4')
+                    else
+                        assetManager.changeColorForAllScreens(LAYERS[i-1], 'color0')
                     drawImageLayers()
                     console.log(assetManager.getColorIcons(LAYERS[1]))
                     console.log(assetManager.getImageIcons(LAYERS[1]))
@@ -29,9 +30,12 @@
             }   
         }
 
+        /**
+         * This function demonstrates how to prepare an assetPathMap to send to AssetManager 
+        */
         function prepareAssetData()
         {
-            let assetMap = new Map()
+            let assetPathMap = new Map()
             {
                 let colorMap = new Map()
                 colorMap.set('color0', 'colors/0.png')
@@ -40,7 +44,7 @@
                 let iconMap = new Map()
                 iconMap.set('icon0', '0.png')
                 iconMap.set('icon1', '1.png')
-                assetMap.set('glass', [colorMap, textureMap, iconMap])
+                assetPathMap.set('glass', [colorMap, textureMap, iconMap])
             }
             {
                 let colorMap = new Map()
@@ -55,7 +59,7 @@
                 let iconMap = new Map()
                 iconMap.set('icon0', '0.png')
                 iconMap.set('icon1', '1.png')
-                assetMap.set('floor', [colorMap, textureMap, iconMap])
+                assetPathMap.set('floor', [colorMap, textureMap, iconMap])
             }
             {
                 let colorMap = new Map()
@@ -70,7 +74,7 @@
                 let iconMap = new Map()
                 iconMap.set('icon0', '0.png')
                 iconMap.set('icon1', '1.png')
-                assetMap.set('bath', [colorMap, textureMap, iconMap])
+                assetPathMap.set('bath', [colorMap, textureMap, iconMap])
             }
             {
                 let colorMap = new Map()
@@ -80,9 +84,9 @@
                 let iconMap = new Map()
                 iconMap.set('icon0', '0.png')
                 iconMap.set('icon1', '1.png')
-                assetMap.set('base', [colorMap, textureMap, iconMap])
+                assetPathMap.set('base', [colorMap, textureMap, iconMap])
             }
-            return assetMap
+            return assetPathMap
         }
 
         window.onresize = drawImageLayers
@@ -147,8 +151,8 @@
         <canvas id="canvas"></canvas>
         <div id="list-color">
             <div id="list-item1" class="list-item-color" style = "background-color: #ff2f63;"><p>glass</p></div>
-            <div id="list-item2" class="list-item-color" style = "background-color: #55E6C1;"><p>floor</p></div>
-            <div id="list-item3" class="list-item-color" style = "background-color: #EAB543;"><p>bath</p></div>
+            <div id="list-item2" class="list-item-color" style = "background-color: #EAB543;"><p>bath</p></div>
+            <div id="list-item3" class="list-item-color" style = "background-color: #55E6C1;"><p>floor</p></div>
             <div id="list-item4" class="list-item-color" style = "background-color: #929090;"><p>base</p></div>
         </div>
     </body>

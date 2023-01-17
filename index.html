@@ -5,6 +5,11 @@
 
             window.onload = render
 
+            /**
+             * Displays the images as grid. If there are less than or equal to 4 images, then a row will have 2 images at most. Rows and columns get adjusted based on the number of images 
+             * in the above array. However, a row is not allowed to have more than 4 images.
+             * 
+            */
             function render()
             {
                 let maxTiles = (IMAGES.length % 2 == 0)?IMAGES.length:IMAGES.length+1
