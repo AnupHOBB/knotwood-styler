@@ -64,12 +64,16 @@ class AssetManagerCore
      * @param {Array} screenTypes contains array of string that holds screen names. Screen name or Screen type name is the name of the screen for which there will be a variant of an asset 
      * present. Every image layer will have different variant based on the screen sizes. E.g : ['mobile', 'pc'] in this case. This was added to allow support for multiple screen sizes. 
      * Any name for screen type can be given. But folders with those names must be present inside the assets folder within the project as these names will be used to fetch assets. 
+     * The image size for all the layers for a particular screenType must be same. This goes for all the color and texture images.
      * 
      * @param {Array} layerNames contains array of string that holds layer names. Layer names are the name of image layers that will be stacked on top of another when displaying the final
      * combined image. Layering is done to allow images to be separately modified. In this project, for a bathroom image, separate layers of glass, floor, bath and a base backgorund images
      * were used, combined and drawn into a canvas for displaying.  E.g : ['glass', 'floor', 'bath', 'base'] in this case. Any name for layers can be given. But folders with those names must 
      * be present inside the "assets/[screnType]/" folder within the project as these names will be used to fetch assets. In case of this project, the layer folders are present inside 
      * "assets/mobile/" and "assets/pc/" directories as this project has "mobile" and "pc" as screen types.
+     * Also, the ordering of the layers matter. The layer that is supposd to appear before all layers must be placed at position 0 in this array and the layer that appears behind all layers must 
+     * be at the end of this array. The first layer in this array will be at the top of the stack, then the second item, then the third, and finally the last item in the array will be at the
+     * bottom of the layer stack.
      * 
      * @param {Map} assetPathMap contains the relative path of all the color, texture and icon assets. The program assumes that all the color and texture assets will be stored inside 
      * "assets/[screen type]/[layer name]/"\and icons inside assets/icon/[layer name]/ folders. In case of this project, the directories where the colors and textures of glass layer 
